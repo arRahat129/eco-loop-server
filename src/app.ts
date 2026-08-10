@@ -9,8 +9,11 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  // res.json({ success: true, message: "API Server Running" });
-  res.sendFile(path.join(__dirname, "views/index.html"));
+  res.sendFile(path.join(__dirname, "views/index.html"), (err) => {
+    if (err) {
+      res.json({ success: true, message: "Eco Loop API Server Running" });
+    }
+  });
 });
 
 app.use("/api/v1", routes);

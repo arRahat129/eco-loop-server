@@ -140,7 +140,6 @@ exports.ProductScalarFieldEnum = {
     name: 'name',
     price: 'price',
     categoryId: 'categoryId',
-    userId: 'userId',
     status: 'status',
     isDeleted: 'isDeleted',
     createdAt: 'createdAt',
