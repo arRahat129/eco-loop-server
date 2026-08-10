@@ -8,14 +8,18 @@ const router = Router();
 // CREATE User
 router.post("/", async (req, res) => {
     try {
-        const { password, ...rest } = req.body;
+        const { id, password, ...rest } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
         const data = await prisma.user.create({
-            data: { ...rest, password: hashedPassword },
+            data: { ...(id ? { id } : {}), ...rest, password: hashedPassword },
             select: { id: true, email: true, name: true, role: true, isDeleted: true, createdAt: true, updatedAt: true },
         });
         sendResponse({ res, status: 201, success: true, message: "User created successfully", data });
     } catch (error: any) {
+        // If synced user already exists (e.g. duplicate hook call), treat as success
+        if (error.code === "P2002") {
+            return sendResponse({ res, status: 200, success: true, message: "User already exists" });
+        }
         sendResponse({ res, status: 400, success: false, message: error.message });
     }
 });
