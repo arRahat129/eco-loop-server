@@ -1,3 +1,17 @@
-/node_modules
+# Dependencies
+node_modules/
+
+# Environment variables
 .env*
+
+# Compiled output
+dist/
+
+# Prisma generated client
 /src/generated/prisma
+
+# Vercel
+.vercel
+
+# Kiro
+skills-lock.json
