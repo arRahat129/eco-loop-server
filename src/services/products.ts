@@ -1,5 +1,6 @@
 import { Router } from "express";
 import prisma from "../lib/prisma";
+import { sendResponse } from "../lib/sendResponse";
 
 const router = Router();
 
@@ -7,41 +8,49 @@ const router = Router();
 router.post("/", async (req, res) => {
     try {
         const data = await prisma.product.create({ data: req.body });
-        res.status(201).json(data);
+        sendResponse({ res, status: 201, success: true, message: "Product created successfully", data });
     } catch (error: any) {
-        res.status(400).json({ error: error.message });
+        sendResponse({ res, status: 400, success: false, message: error.message });
     }
 });
 
 // GET All Products
 router.get("/", async (req, res) => {
-    const products = await prisma.product.findMany({
-        where: { isDeleted: false },
-        include: { category: true, reviews: { where: { isDeleted: false } } },
-    });
-    res.json(products);
+    try {
+        const data = await prisma.product.findMany({
+            where: { isDeleted: false },
+            include: { category: true, reviews: { where: { isDeleted: false } } },
+        });
+        sendResponse({ res, success: true, message: "Products fetched successfully", data });
+    } catch (error: any) {
+        sendResponse({ res, status: 500, success: false, message: error.message });
+    }
 });
 
 // GET Product By ID
 router.get("/:id", async (req, res) => {
-    const product = await prisma.product.findFirst({
-        where: { id: req.params.id, isDeleted: false },
-        include: { category: true, reviews: { where: { isDeleted: false } } },
-    });
-    if (!product) return res.status(404).json({ message: "Product not found" });
-    res.json(product);
+    try {
+        const data = await prisma.product.findFirst({
+            where: { id: req.params.id, isDeleted: false },
+            include: { category: true, reviews: { where: { isDeleted: false } } },
+        });
+        if (!data) return sendResponse({ res, status: 404, success: false, message: "Product not found" });
+        sendResponse({ res, success: true, message: "Product fetched successfully", data });
+    } catch (error: any) {
+        sendResponse({ res, status: 500, success: false, message: error.message });
+    }
 });
 
 // PATCH Product
 router.patch("/:id", async (req, res) => {
     try {
-        const product = await prisma.product.update({
+        const data = await prisma.product.update({
             where: { id: req.params.id },
             data: req.body,
         });
-        res.json(product);
+        sendResponse({ res, success: true, message: "Product updated successfully", data });
     } catch (error: any) {
-        res.status(400).json({ error: error.message });
+        sendResponse({ res, status: 400, success: false, message: error.message });
     }
 });
 
@@ -52,9 +61,9 @@ router.delete("/:id", async (req, res) => {
             where: { id: req.params.id },
             data: { isDeleted: true },
         });
-        res.json({ message: "Product deleted (soft delete)" });
+        sendResponse({ res, success: true, message: "Product deleted successfully" });
     } catch (error: any) {
-        res.status(400).json({ error: error.message });
+        sendResponse({ res, status: 400, success: false, message: error.message });
     }
 });
 
