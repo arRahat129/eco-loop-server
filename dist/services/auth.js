@@ -8,6 +8,7 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const prisma_1 = __importDefault(require("../lib/prisma"));
 const sendResponse_1 = require("../lib/sendResponse");
+const authenticate_1 = require("../middleware/authenticate");
 const router = (0, express_1.Router)();
 const JWT_SECRET = process.env.JWT_SECRET || "eco-loop-secret-key";
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
@@ -62,16 +63,10 @@ router.post("/login", async (req, res) => {
     }
 });
 // GET ME (current user from token)
-router.get("/me", async (req, res) => {
+router.get("/me", authenticate_1.authenticate, async (req, res) => {
     try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader?.startsWith("Bearer ")) {
-            return (0, sendResponse_1.sendResponse)({ res, status: 401, success: false, message: "Unauthorized" });
-        }
-        const token = authHeader.split(" ")[1];
-        const decoded = jsonwebtoken_1.default.verify(token, JWT_SECRET);
         const user = await prisma_1.default.user.findFirst({
-            where: { id: decoded.id, isDeleted: false },
+            where: { id: req.user.id, isDeleted: false },
             select: { id: true, email: true, name: true, role: true, createdAt: true, updatedAt: true },
         });
         if (!user) {
@@ -80,7 +75,7 @@ router.get("/me", async (req, res) => {
         (0, sendResponse_1.sendResponse)({ res, success: true, message: "User fetched successfully", data: user });
     }
     catch (error) {
-        (0, sendResponse_1.sendResponse)({ res, status: 401, success: false, message: "Invalid or expired token" });
+        (0, sendResponse_1.sendResponse)({ res, status: 500, success: false, message: error.message });
     }
 });
 exports.default = router;

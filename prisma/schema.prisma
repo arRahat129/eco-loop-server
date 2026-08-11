@@ -60,6 +60,8 @@ model Product {
   updatedAt  DateTime @updatedAt
   reviews    Review[]
 
+  @@index([categoryId])
+  @@index([isDeleted])
   @@map("products")
 }
 
@@ -75,5 +77,8 @@ model Review {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([userId])
+  @@index([productId])
+  @@index([isDeleted])
   @@map("reviews")
 }

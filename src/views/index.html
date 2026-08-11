@@ -1,330 +1,352 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ECO LOOP API Console</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap');
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0b1320;
-            color: #94a3b8;
-        }
-
-        code,
-        pre {
-            font-family: 'Fira Code', monospace;
-        }
-
-        .glass-card {
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .method-GET {
-            background-color: rgba(16, 185, 129, 0.15);
-            color: #10b981;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-
-        .method-POST {
-            background-color: rgba(59, 130, 246, 0.15);
-            color: #60a5fa;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-
-        .method-PATCH {
-            background-color: rgba(245, 158, 11, 0.15);
-            color: #fbbf24;
-            border: 1px solid rgba(245, 158, 11, 0.3);
-        }
-
-        .method-DELETE {
-            background-color: rgba(239, 68, 68, 0.15);
-            color: #f87171;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ECO LOOP API Console</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap');
+body{font-family:'Inter',sans-serif;background-color:#0b1320;color:#94a3b8}
+code,pre{font-family:'Fira Code',monospace}
+.gc{background:rgba(15,23,42,0.75);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.08)}
+.mG{background-color:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3)}
+.mP{background-color:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.3)}
+.mA{background-color:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid rgba(245,158,11,0.3)}
+.mD{background-color:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3)}
+.ep{display:none;border-top:1px solid #1e293b;background:rgba(2,6,23,0.6);padding:1rem}
+</style>
 </head>
+<body class="min-h-screen flex flex-col">
 
-<body class="min-h-screen flex flex-col justify-between">
+<header class="gc sticky top-0 z-50 border-b border-slate-800 px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+  <div class="flex items-center gap-3">
+    <div class="h-3 w-3 rounded-full bg-emerald-500 animate-pulse"></div>
+    <h1 class="text-xl font-bold text-white">ECO LOOP Backend Console</h1>
+    <span class="text-xs font-semibold px-2.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/50">v1.0.0</span>
+  </div>
+  <input type="text" id="search-input" onkeyup="filterEndpoints()" placeholder="Filter routes..." class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+</header>
 
-    <!-- Header -->
-    <header
-        class="glass-card sticky top-0 z-50 border-b border-slate-800 px-6 py-4 flex flex-wrap items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-            <div class="h-3 w-3 rounded-full bg-emerald-500 animate-pulse"></div>
-            <h1 class="text-xl font-bold text-white tracking-wide">ECO LOOP Backend Console</h1>
-            <span
-                class="text-xs font-semibold px-2.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/50">v1.0.0
-                Active</span>
-        </div>
-        <div class="flex items-center gap-4">
-            <input type="text" id="search-input" onkeyup="filterEndpoints()" placeholder="Filter routes..."
-                class="bg-slate-900/80 border border-slate-700/60 rounded-lg px-3 py-1.5 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition">
-            <span class="text-xs text-slate-400 border border-slate-800 bg-slate-900/50 px-3 py-1 rounded-lg">Database:
-                PostgreSQL</span>
-        </div>
-    </header>
+<div class="bg-slate-900/90 border-b border-slate-800 px-6 py-3 flex flex-wrap items-center gap-3">
+  <span class="text-xs text-amber-400 font-semibold uppercase tracking-wider">🔑 JWT Token</span>
+  <input type="text" id="global-token" placeholder="Paste Bearer token here after login — token auto-fills on Login button" class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-emerald-300 font-mono placeholder-slate-500 focus:outline-none focus:border-emerald-500 min-w-0">
+  <button onclick="document.getElementById('global-token').value='';document.getElementById('token-status').textContent='Cleared'" class="text-xs px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg border border-slate-700">Clear</button>
+  <span id="token-status" class="text-xs text-slate-500">No token set</span>
+</div>
 
-    <!-- Main Container -->
-    <main class="max-w-7xl w-full mx-auto p-6 space-y-8 grow">
+<main class="max-w-5xl w-full mx-auto p-6 space-y-8 grow">
 
-        <!-- Hero Banner -->
-        <section
-            class="glass-card rounded-2xl p-6 border border-slate-800/80 bg-linear-to-r from-slate-900 via-slate-900/90 to-emerald-950/30">
-            <h2 class="text-2xl font-bold text-slate-100 mb-2">API Documentation & Test Runner</h2>
-            <p class="text-slate-400 text-sm max-w-2xl">
-                Select any endpoint to execute queries or view route metadata. Endpoints marked with
-                <span
-                    class="inline-flex items-center text-amber-400 font-semibold gap-1 px-1.5 py-0.5 bg-amber-950/50 rounded border border-amber-800/40 text-xs">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
-                        </path>
-                    </svg> Protected
-                </span>
-                are queued for JWT bearer guard integration.
-            </p>
-        </section>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+  <div class="gc p-4 rounded-xl"><div class="text-xs text-slate-400">User Model</div><div class="text-lg font-bold text-white mt-1">Users</div><p class="text-xs text-slate-400 mt-1">Email · Password · Name · Role</p></div>
+  <div class="gc p-4 rounded-xl"><div class="text-xs text-slate-400">Category Model</div><div class="text-lg font-bold text-white mt-1">Categories</div><p class="text-xs text-slate-400 mt-1">Name · Status</p></div>
+  <div class="gc p-4 rounded-xl"><div class="text-xs text-slate-400">Product Model</div><div class="text-lg font-bold text-white mt-1">Products</div><p class="text-xs text-slate-400 mt-1">Name · Price · CategoryId</p></div>
+  <div class="gc p-4 rounded-xl"><div class="text-xs text-slate-400">Review Model</div><div class="text-lg font-bold text-white mt-1">Reviews</div><p class="text-xs text-slate-400 mt-1">Rating · Comment · UserId · ProductId</p></div>
+</div>
 
-        <!-- Schema Architecture Overview -->
-        <section class="space-y-3">
-            <h3 class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Data Architecture Models</h3>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="glass-card p-4 rounded-xl border border-slate-800">
-                    <div class="text-xs text-slate-400">User Model</div>
-                    <div class="text-lg font-bold text-white mt-1">Users</div>
-                    <p class="text-xs text-slate-400 mt-2">Email, Password, Name, Role</p>
-                </div>
-                <div class="glass-card p-4 rounded-xl border border-slate-800">
-                    <div class="text-xs text-slate-400">Category Model</div>
-                    <div class="text-lg font-bold text-white mt-1">Categories</div>
-                    <p class="text-xs text-slate-400 mt-2">Name, Status (ACTIVE/INACTIVE)</p>
-                </div>
-                <div class="glass-card p-4 rounded-xl border border-slate-800">
-                    <div class="text-xs text-slate-400">Product Model</div>
-                    <div class="text-lg font-bold text-white mt-1">Products</div>
-                    <p class="text-xs text-slate-400 mt-2">Name, Price, CategoryId</p>
-                </div>
-                <div class="glass-card p-4 rounded-xl border border-slate-800">
-                    <div class="text-xs text-slate-400">Review Model</div>
-                    <div class="text-lg font-bold text-white mt-1">Reviews</div>
-                    <p class="text-xs text-slate-400 mt-2">Rating, Comment, UserId, ProductId</p>
-                </div>
-            </div>
-        </section>
+<div id="endpoint-list" class="space-y-3">
+<p class="text-xs uppercase tracking-widest text-slate-500 font-semibold">Auth — Public</p>
 
-        <!-- Endpoint Explorer -->
-        <section class="space-y-4">
-            <h3 class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Registered API Routes (/api/v1)
-            </h3>
+<div class="endpoint-card gc rounded-xl overflow-hidden">
+  <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40" onclick="toggle('auth-register')">
+    <div class="flex items-center gap-3"><span class="mP text-xs font-bold px-2.5 py-1 rounded-md">POST</span><code class="text-sm font-semibold text-slate-200">/api/v1/auth/register</code></div>
+    <span class="text-xs text-slate-400">Register a new user</span>
+  </div>
+  <div id="auth-register" class="ep space-y-3">
+    <textarea id="body-auth-register" rows="4" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 rounded-lg p-3 font-mono focus:outline-none focus:border-emerald-500">{"name":"Alex Smith","email":"alex@example.com","password":"password123"}</textarea>
+    <button onclick="go('/api/v1/auth/register','POST','res-auth-register','body-auth-register',false)" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium px-4 py-2 rounded-lg">Send Request</button>
+    <pre id="res-auth-register" class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-10">// response here...</pre>
+  </div>
+</div>
 
-            <div id="endpoint-list" class="space-y-3">
+<div class="endpoint-card gc rounded-xl overflow-hidden border border-emerald-900/60">
+  <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40" onclick="toggle('auth-login')">
+    <div class="flex items-center gap-3"><span class="mP text-xs font-bold px-2.5 py-1 rounded-md">POST</span><code class="text-sm font-semibold text-slate-200">/api/v1/auth/login</code></div>
+    <span class="text-xs text-emerald-400 font-semibold">⬅ Get your token here</span>
+  </div>
+  <div id="auth-login" class="ep space-y-3">
+    <p class="text-xs text-emerald-400">Token is automatically copied to the JWT bar above after login.</p>
+    <textarea id="body-auth-login" rows="3" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 rounded-lg p-3 font-mono focus:outline-none focus:border-emerald-500">{"email":"alex@example.com","password":"password123"}</textarea>
+    <button onclick="loginAndSetToken()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium px-4 py-2 rounded-lg">Login &amp; Set Token</button>
+    <pre id="res-auth-login" class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-10">// response here...</pre>
+  </div>
+</div>
 
-                <!-- Endpoint Item template -->
-                <div
-                    class="endpoint-card glass-card rounded-xl border border-slate-800 overflow-hidden transition-all duration-200">
-                    <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40"
-                        onclick="toggleTestPanel('users-get')">
-                        <div class="flex items-center gap-3">
-                            <span class="method-GET text-xs font-bold px-2.5 py-1 rounded-md">GET</span>
-                            <code class="text-sm font-semibold text-slate-200">/api/v1/users</code>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs text-slate-400">Fetch non-deleted users</span>
-                            <span
-                                class="opacity-30 text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">Public</span>
-                        </div>
-                    </div>
-                    <div id="users-get" class="hidden border-t border-slate-800 bg-slate-950/60 p-4 space-y-3">
-                        <button onclick="executeFetch('/api/v1/users', 'GET', 'res-users-get')"
-                            class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium px-4 py-2 rounded-lg transition">Send
-                            Request</button>
-                        <pre id="res-users-get"
-                            class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-12.5">// Response will output here...</pre>
-                    </div>
-                </div>
+<div class="endpoint-card gc rounded-xl overflow-hidden">
+  <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40" onclick="toggle('auth-me')">
+    <div class="flex items-center gap-3"><span class="mG text-xs font-bold px-2.5 py-1 rounded-md">GET</span><code class="text-sm font-semibold text-slate-200">/api/v1/auth/me</code></div>
+    <div class="flex items-center gap-3"><span class="text-xs text-slate-400">Get current user from token</span><span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-950/70 text-amber-400 border border-amber-800/50">🔒 Protected</span></div>
+  </div>
+  <div id="auth-me" class="ep space-y-3">
+    <button onclick="go('/api/v1/auth/me','GET','res-auth-me',null,true)" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium px-4 py-2 rounded-lg">Send Request</button>
+    <pre id="res-auth-me" class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-10">// response here...</pre>
+  </div>
+</div>
+<p class="text-xs uppercase tracking-widest text-slate-500 font-semibold pt-4">Categories — Protected</p>
 
-                <div
-                    class="endpoint-card glass-card rounded-xl border border-slate-800 overflow-hidden transition-all duration-200">
-                    <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40"
-                        onclick="toggleTestPanel('users-post')">
-                        <div class="flex items-center gap-3">
-                            <span class="method-POST text-xs font-bold px-2.5 py-1 rounded-md">POST</span>
-                            <code class="text-sm font-semibold text-slate-200">/api/v1/users</code>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs text-slate-400">Create new user</span>
-                            <span
-                                class="flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded bg-amber-950/70 text-amber-400 border border-amber-800/50"
-                                title="Protected Route">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
-                                    </path>
-                                </svg> Protected
-                            </span>
-                        </div>
-                    </div>
-                    <div id="users-post" class="hidden border-t border-slate-800 bg-slate-950/60 p-4 space-y-3">
-                        <textarea id="body-users-post" rows="4"
-                            class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 rounded-lg p-3 font-mono focus:outline-none focus:border-emerald-500">{
-  "email": "test@example.com",
-  "password": "securepassword123",
-  "name": "Alex Smith"
-}</textarea>
-                        <button onclick="executeFetch('/api/v1/users', 'POST', 'res-users-post', 'body-users-post')"
-                            class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium px-4 py-2 rounded-lg transition">Send
-                            Request</button>
-                        <pre id="res-users-post"
-                            class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-12.5">// Response will output here...</pre>
-                    </div>
-                </div>
+<div class="endpoint-card gc rounded-xl overflow-hidden">
+  <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40" onclick="toggle('cat-get')">
+    <div class="flex items-center gap-3"><span class="mG text-xs font-bold px-2.5 py-1 rounded-md">GET</span><code class="text-sm font-semibold text-slate-200">/api/v1/categories</code></div>
+    <div class="flex items-center gap-3"><span class="text-xs text-slate-400">Fetch all categories</span><span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-950/70 text-amber-400 border border-amber-800/50">🔒 Protected</span></div>
+  </div>
+  <div id="cat-get" class="ep space-y-3">
+    <button onclick="go('/api/v1/categories','GET','res-cat-get',null,true)" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium px-4 py-2 rounded-lg">Send Request</button>
+    <pre id="res-cat-get" class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-10">// response here...</pre>
+  </div>
+</div>
 
-                <div
-                    class="endpoint-card glass-card rounded-xl border border-slate-800 overflow-hidden transition-all duration-200">
-                    <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40"
-                        onclick="toggleTestPanel('products-get')">
-                        <div class="flex items-center gap-3">
-                            <span class="method-GET text-xs font-bold px-2.5 py-1 rounded-md">GET</span>
-                            <code class="text-sm font-semibold text-slate-200">/api/v1/products</code>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs text-slate-400">Get products list</span>
-                            <span
-                                class="opacity-30 text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">Public</span>
-                        </div>
-                    </div>
-                    <div id="products-get" class="hidden border-t border-slate-800 bg-slate-950/60 p-4 space-y-3">
-                        <button onclick="executeFetch('/api/v1/products', 'GET', 'res-products-get')"
-                            class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium px-4 py-2 rounded-lg transition">Send
-                            Request</button>
-                        <pre id="res-products-get"
-                            class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-12.5">// Response will output here...</pre>
-                    </div>
-                </div>
+<div class="endpoint-card gc rounded-xl overflow-hidden">
+  <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40" onclick="toggle('cat-post')">
+    <div class="flex items-center gap-3"><span class="mP text-xs font-bold px-2.5 py-1 rounded-md">POST</span><code class="text-sm font-semibold text-slate-200">/api/v1/categories</code></div>
+    <div class="flex items-center gap-3"><span class="text-xs text-slate-400">Create a category</span><span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-950/70 text-amber-400 border border-amber-800/50">🔒 Protected</span></div>
+  </div>
+  <div id="cat-post" class="ep space-y-3">
+    <textarea id="body-cat-post" rows="3" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 rounded-lg p-3 font-mono focus:outline-none focus:border-emerald-500">{"name":"Electronics","status":"ACTIVE"}</textarea>
+    <button onclick="go('/api/v1/categories','POST','res-cat-post','body-cat-post',true)" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium px-4 py-2 rounded-lg">Send Request</button>
+    <pre id="res-cat-post" class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-10">// response here...</pre>
+  </div>
+</div>
 
-                <div
-                    class="endpoint-card glass-card rounded-xl border border-slate-800 overflow-hidden transition-all duration-200">
-                    <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40"
-                        onclick="toggleTestPanel('products-post')">
-                        <div class="flex items-center gap-3">
-                            <span class="method-POST text-xs font-bold px-2.5 py-1 rounded-md">POST</span>
-                            <code class="text-sm font-semibold text-slate-200">/api/v1/products</code>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs text-slate-400">Create new product</span>
-                            <span
-                                class="flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded bg-amber-950/70 text-amber-400 border border-amber-800/50"
-                                title="Protected Route">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
-                                    </path>
-                                </svg> Protected
-                            </span>
-                        </div>
-                    </div>
-                    <div id="products-post" class="hidden border-t border-slate-800 bg-slate-950/60 p-4 space-y-3">
-                        <textarea id="body-products-post" rows="4"
-                            class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 rounded-lg p-3 font-mono focus:outline-none focus:border-emerald-500">{
-  "name": "Wireless Headset",
-  "price": 99.99,
-  "categoryId": "CATEGORY_UUID_HERE"
-}</textarea>
-                        <button
-                            onclick="executeFetch('/api/v1/products', 'POST', 'res-products-post', 'body-products-post')"
-                            class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium px-4 py-2 rounded-lg transition">Send
-                            Request</button>
-                        <pre id="res-products-post"
-                            class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-12.5">// Response will output here...</pre>
-                    </div>
-                </div>
+<div class="endpoint-card gc rounded-xl overflow-hidden">
+  <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40" onclick="toggle('cat-patch')">
+    <div class="flex items-center gap-3"><span class="mA text-xs font-bold px-2.5 py-1 rounded-md">PATCH</span><code class="text-sm font-semibold text-slate-200">/api/v1/categories/:id</code></div>
+    <div class="flex items-center gap-3"><span class="text-xs text-slate-400">Update category</span><span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-950/70 text-amber-400 border border-amber-800/50">🔒 Protected</span></div>
+  </div>
+  <div id="cat-patch" class="ep space-y-3">
+    <input type="text" id="id-cat-patch" placeholder="Category UUID" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 rounded-lg px-3 py-2 font-mono focus:outline-none focus:border-emerald-500">
+    <textarea id="body-cat-patch" rows="3" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 rounded-lg p-3 font-mono focus:outline-none focus:border-emerald-500">{"status":"INACTIVE"}</textarea>
+    <button onclick="goId('/api/v1/categories','id-cat-patch','PATCH','res-cat-patch','body-cat-patch')" class="bg-yellow-600 hover:bg-yellow-500 text-white text-xs font-medium px-4 py-2 rounded-lg">Send Request</button>
+    <pre id="res-cat-patch" class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-10">// response here...</pre>
+  </div>
+</div>
 
-                <div
-                    class="endpoint-card glass-card rounded-xl border border-slate-800 overflow-hidden transition-all duration-200">
-                    <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40"
-                        onclick="toggleTestPanel('reviews-delete')">
-                        <div class="flex items-center gap-3">
-                            <span class="method-DELETE text-xs font-bold px-2.5 py-1 rounded-md">DELETE</span>
-                            <code class="text-sm font-semibold text-slate-200">/api/v1/reviews/:id</code>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs text-slate-400">Soft delete review record</span>
-                            <span
-                                class="flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded bg-amber-950/70 text-amber-400 border border-amber-800/50"
-                                title="Protected Route">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
-                                    </path>
-                                </svg> Protected
-                            </span>
-                        </div>
-                    </div>
-                    <div id="reviews-delete" class="hidden border-t border-slate-800 bg-slate-950/60 p-4 space-y-3">
-                        <p class="text-xs text-slate-400">Requires a valid Review ID URL parameter.</p>
-                    </div>
-                </div>
+<div class="endpoint-card gc rounded-xl overflow-hidden">
+  <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40" onclick="toggle('cat-delete')">
+    <div class="flex items-center gap-3"><span class="mD text-xs font-bold px-2.5 py-1 rounded-md">DELETE</span><code class="text-sm font-semibold text-slate-200">/api/v1/categories/:id</code></div>
+    <div class="flex items-center gap-3"><span class="text-xs text-slate-400">Soft delete category</span><span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-950/70 text-amber-400 border border-amber-800/50">🔒 Protected</span></div>
+  </div>
+  <div id="cat-delete" class="ep space-y-3">
+    <input type="text" id="id-cat-delete" placeholder="Category UUID" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 rounded-lg px-3 py-2 font-mono focus:outline-none focus:border-emerald-500">
+    <button onclick="goId('/api/v1/categories','id-cat-delete','DELETE','res-cat-delete')" class="bg-red-600 hover:bg-red-500 text-white text-xs font-medium px-4 py-2 rounded-lg">Send Request</button>
+    <pre id="res-cat-delete" class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-10">// response here...</pre>
+  </div>
+</div>
+<p class="text-xs uppercase tracking-widest text-slate-500 font-semibold pt-4">Users — Protected</p>
 
-            </div>
-        </section>
+<div class="endpoint-card gc rounded-xl overflow-hidden">
+  <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40" onclick="toggle('usr-get')">
+    <div class="flex items-center gap-3"><span class="mG text-xs font-bold px-2.5 py-1 rounded-md">GET</span><code class="text-sm font-semibold text-slate-200">/api/v1/users</code></div>
+    <div class="flex items-center gap-3"><span class="text-xs text-slate-400">Fetch non-deleted users</span><span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-950/70 text-amber-400 border border-amber-800/50">🔒 Protected</span></div>
+  </div>
+  <div id="usr-get" class="ep space-y-3">
+    <button onclick="go('/api/v1/users','GET','res-usr-get',null,true)" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium px-4 py-2 rounded-lg">Send Request</button>
+    <pre id="res-usr-get" class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-10">// response here...</pre>
+  </div>
+</div>
 
-    </main>
+<div class="endpoint-card gc rounded-xl overflow-hidden">
+  <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40" onclick="toggle('usr-post')">
+    <div class="flex items-center gap-3"><span class="mP text-xs font-bold px-2.5 py-1 rounded-md">POST</span><code class="text-sm font-semibold text-slate-200">/api/v1/users</code></div>
+    <div class="flex items-center gap-3"><span class="text-xs text-slate-400">Create user with hashed password</span><span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-950/70 text-amber-400 border border-amber-800/50">🔒 Protected</span></div>
+  </div>
+  <div id="usr-post" class="ep space-y-3">
+    <textarea id="body-usr-post" rows="4" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 rounded-lg p-3 font-mono focus:outline-none focus:border-emerald-500">{"email":"test@example.com","password":"securepassword123","name":"Alex Smith"}</textarea>
+    <button onclick="go('/api/v1/users','POST','res-usr-post','body-usr-post',true)" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium px-4 py-2 rounded-lg">Send Request</button>
+    <pre id="res-usr-post" class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-10">// response here...</pre>
+  </div>
+</div>
 
-    <footer class="glass-card border-t border-slate-800/80 px-6 py-4 text-center text-xs text-slate-400">
-        Prisma Express REST API &bull; Running on Node.js / TypeScript
-    </footer>
+<div class="endpoint-card gc rounded-xl overflow-hidden">
+  <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40" onclick="toggle('usr-patch')">
+    <div class="flex items-center gap-3"><span class="mA text-xs font-bold px-2.5 py-1 rounded-md">PATCH</span><code class="text-sm font-semibold text-slate-200">/api/v1/users/:id</code></div>
+    <div class="flex items-center gap-3"><span class="text-xs text-slate-400">Update user</span><span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-950/70 text-amber-400 border border-amber-800/50">🔒 Protected</span></div>
+  </div>
+  <div id="usr-patch" class="ep space-y-3">
+    <input type="text" id="id-usr-patch" placeholder="User UUID" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 rounded-lg px-3 py-2 font-mono focus:outline-none focus:border-emerald-500">
+    <textarea id="body-usr-patch" rows="3" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 rounded-lg p-3 font-mono focus:outline-none focus:border-emerald-500">{"name":"Updated Name"}</textarea>
+    <button onclick="goId('/api/v1/users','id-usr-patch','PATCH','res-usr-patch','body-usr-patch')" class="bg-yellow-600 hover:bg-yellow-500 text-white text-xs font-medium px-4 py-2 rounded-lg">Send Request</button>
+    <pre id="res-usr-patch" class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-10">// response here...</pre>
+  </div>
+</div>
 
-    <script>
-        function toggleTestPanel(id) {
-            const panel = document.getElementById(id);
-            panel.classList.toggle('hidden');
-        }
+<div class="endpoint-card gc rounded-xl overflow-hidden">
+  <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40" onclick="toggle('usr-delete')">
+    <div class="flex items-center gap-3"><span class="mD text-xs font-bold px-2.5 py-1 rounded-md">DELETE</span><code class="text-sm font-semibold text-slate-200">/api/v1/users/:id</code></div>
+    <div class="flex items-center gap-3"><span class="text-xs text-slate-400">Soft delete user</span><span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-950/70 text-amber-400 border border-amber-800/50">🔒 Protected</span></div>
+  </div>
+  <div id="usr-delete" class="ep space-y-3">
+    <input type="text" id="id-usr-delete" placeholder="User UUID" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 rounded-lg px-3 py-2 font-mono focus:outline-none focus:border-emerald-500">
+    <button onclick="goId('/api/v1/users','id-usr-delete','DELETE','res-usr-delete')" class="bg-red-600 hover:bg-red-500 text-white text-xs font-medium px-4 py-2 rounded-lg">Send Request</button>
+    <pre id="res-usr-delete" class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-10">// response here...</pre>
+  </div>
+</div>
+<p class="text-xs uppercase tracking-widest text-slate-500 font-semibold pt-4">Products — Protected</p>
 
-        function filterEndpoints() {
-            const query = document.getElementById('search-input').value.toLowerCase();
-            const cards = document.querySelectorAll('.endpoint-card');
-            cards.forEach(card => {
-                const text = card.textContent.toLowerCase();
-                card.style.display = text.includes(query) ? 'block' : 'none';
-            });
-        }
+<div class="endpoint-card gc rounded-xl overflow-hidden">
+  <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40" onclick="toggle('prd-get')">
+    <div class="flex items-center gap-3"><span class="mG text-xs font-bold px-2.5 py-1 rounded-md">GET</span><code class="text-sm font-semibold text-slate-200">/api/v1/products</code></div>
+    <div class="flex items-center gap-3"><span class="text-xs text-slate-400">Fetch products with category and reviews</span><span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-950/70 text-amber-400 border border-amber-800/50">🔒 Protected</span></div>
+  </div>
+  <div id="prd-get" class="ep space-y-3">
+    <button onclick="go('/api/v1/products','GET','res-prd-get',null,true)" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium px-4 py-2 rounded-lg">Send Request</button>
+    <pre id="res-prd-get" class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-10">// response here...</pre>
+  </div>
+</div>
 
-        async function executeFetch(url, method, outputId, bodyInputId = null) {
-            const outputElem = document.getElementById(outputId);
-            outputElem.textContent = "Executing...";
+<div class="endpoint-card gc rounded-xl overflow-hidden">
+  <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40" onclick="toggle('prd-post')">
+    <div class="flex items-center gap-3"><span class="mP text-xs font-bold px-2.5 py-1 rounded-md">POST</span><code class="text-sm font-semibold text-slate-200">/api/v1/products</code></div>
+    <div class="flex items-center gap-3"><span class="text-xs text-slate-400">Create product linked to categoryId</span><span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-950/70 text-amber-400 border border-amber-800/50">🔒 Protected</span></div>
+  </div>
+  <div id="prd-post" class="ep space-y-3">
+    <p class="text-xs text-slate-400">Create a category first and paste its ID below.</p>
+    <textarea id="body-prd-post" rows="4" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 rounded-lg p-3 font-mono focus:outline-none focus:border-emerald-500">{"name":"Bamboo Water Bottle","price":24.99,"categoryId":"CATEGORY_UUID_HERE"}</textarea>
+    <button onclick="go('/api/v1/products','POST','res-prd-post','body-prd-post',true)" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium px-4 py-2 rounded-lg">Send Request</button>
+    <pre id="res-prd-post" class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-10">// response here...</pre>
+  </div>
+</div>
 
-            const options = {
-                method: method,
-                headers: { "Content-Type": "application/json" }
-            };
+<div class="endpoint-card gc rounded-xl overflow-hidden">
+  <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40" onclick="toggle('prd-patch')">
+    <div class="flex items-center gap-3"><span class="mA text-xs font-bold px-2.5 py-1 rounded-md">PATCH</span><code class="text-sm font-semibold text-slate-200">/api/v1/products/:id</code></div>
+    <div class="flex items-center gap-3"><span class="text-xs text-slate-400">Update product</span><span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-950/70 text-amber-400 border border-amber-800/50">🔒 Protected</span></div>
+  </div>
+  <div id="prd-patch" class="ep space-y-3">
+    <input type="text" id="id-prd-patch" placeholder="Product UUID" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 rounded-lg px-3 py-2 font-mono focus:outline-none focus:border-emerald-500">
+    <textarea id="body-prd-patch" rows="3" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 rounded-lg p-3 font-mono focus:outline-none focus:border-emerald-500">{"price":19.99}</textarea>
+    <button onclick="goId('/api/v1/products','id-prd-patch','PATCH','res-prd-patch','body-prd-patch')" class="bg-yellow-600 hover:bg-yellow-500 text-white text-xs font-medium px-4 py-2 rounded-lg">Send Request</button>
+    <pre id="res-prd-patch" class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-10">// response here...</pre>
+  </div>
+</div>
 
-            if (bodyInputId) {
-                try {
-                    const bodyVal = document.getElementById(bodyInputId).value;
-                    options.body = JSON.stringify(JSON.parse(bodyVal));
-                } catch (e) {
-                    outputElem.textContent = "Error: Invalid JSON body format";
-                    return;
-                }
-            }
+<div class="endpoint-card gc rounded-xl overflow-hidden">
+  <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40" onclick="toggle('prd-delete')">
+    <div class="flex items-center gap-3"><span class="mD text-xs font-bold px-2.5 py-1 rounded-md">DELETE</span><code class="text-sm font-semibold text-slate-200">/api/v1/products/:id</code></div>
+    <div class="flex items-center gap-3"><span class="text-xs text-slate-400">Soft delete product</span><span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-950/70 text-amber-400 border border-amber-800/50">🔒 Protected</span></div>
+  </div>
+  <div id="prd-delete" class="ep space-y-3">
+    <input type="text" id="id-prd-delete" placeholder="Product UUID" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 rounded-lg px-3 py-2 font-mono focus:outline-none focus:border-emerald-500">
+    <button onclick="goId('/api/v1/products','id-prd-delete','DELETE','res-prd-delete')" class="bg-red-600 hover:bg-red-500 text-white text-xs font-medium px-4 py-2 rounded-lg">Send Request</button>
+    <pre id="res-prd-delete" class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-10">// response here...</pre>
+  </div>
+</div>
+<p class="text-xs uppercase tracking-widest text-slate-500 font-semibold pt-4">Reviews — Protected</p>
 
-            try {
-                const response = await fetch(url, options);
-                const data = await response.json();
-                outputElem.textContent = JSON.stringify(data, null, 2);
-            } catch (err) {
-                outputElem.textContent = `Request failed: ${err.message}`;
-            }
-        }
-    </script>
+<div class="endpoint-card gc rounded-xl overflow-hidden">
+  <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40" onclick="toggle('rev-get')">
+    <div class="flex items-center gap-3"><span class="mG text-xs font-bold px-2.5 py-1 rounded-md">GET</span><code class="text-sm font-semibold text-slate-200">/api/v1/reviews</code></div>
+    <div class="flex items-center gap-3"><span class="text-xs text-slate-400">Fetch reviews with user and product</span><span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-950/70 text-amber-400 border border-amber-800/50">🔒 Protected</span></div>
+  </div>
+  <div id="rev-get" class="ep space-y-3">
+    <button onclick="go('/api/v1/reviews','GET','res-rev-get',null,true)" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium px-4 py-2 rounded-lg">Send Request</button>
+    <pre id="res-rev-get" class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-10">// response here...</pre>
+  </div>
+</div>
+
+<div class="endpoint-card gc rounded-xl overflow-hidden">
+  <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40" onclick="toggle('rev-post')">
+    <div class="flex items-center gap-3"><span class="mP text-xs font-bold px-2.5 py-1 rounded-md">POST</span><code class="text-sm font-semibold text-slate-200">/api/v1/reviews</code></div>
+    <div class="flex items-center gap-3"><span class="text-xs text-slate-400">Add review linked to userId and productId</span><span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-950/70 text-amber-400 border border-amber-800/50">🔒 Protected</span></div>
+  </div>
+  <div id="rev-post" class="ep space-y-3">
+    <textarea id="body-rev-post" rows="5" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 rounded-lg p-3 font-mono focus:outline-none focus:border-emerald-500">{"rating":5,"comment":"Great eco-friendly product!","userId":"USER_UUID_HERE","productId":"PRODUCT_UUID_HERE"}</textarea>
+    <button onclick="go('/api/v1/reviews','POST','res-rev-post','body-rev-post',true)" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium px-4 py-2 rounded-lg">Send Request</button>
+    <pre id="res-rev-post" class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-10">// response here...</pre>
+  </div>
+</div>
+
+<div class="endpoint-card gc rounded-xl overflow-hidden">
+  <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40" onclick="toggle('rev-patch')">
+    <div class="flex items-center gap-3"><span class="mA text-xs font-bold px-2.5 py-1 rounded-md">PATCH</span><code class="text-sm font-semibold text-slate-200">/api/v1/reviews/:id</code></div>
+    <div class="flex items-center gap-3"><span class="text-xs text-slate-400">Update review rating or comment</span><span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-950/70 text-amber-400 border border-amber-800/50">🔒 Protected</span></div>
+  </div>
+  <div id="rev-patch" class="ep space-y-3">
+    <input type="text" id="id-rev-patch" placeholder="Review UUID" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 rounded-lg px-3 py-2 font-mono focus:outline-none focus:border-emerald-500">
+    <textarea id="body-rev-patch" rows="3" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 rounded-lg p-3 font-mono focus:outline-none focus:border-emerald-500">{"rating":4,"comment":"Updated comment"}</textarea>
+    <button onclick="goId('/api/v1/reviews','id-rev-patch','PATCH','res-rev-patch','body-rev-patch')" class="bg-yellow-600 hover:bg-yellow-500 text-white text-xs font-medium px-4 py-2 rounded-lg">Send Request</button>
+    <pre id="res-rev-patch" class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-10">// response here...</pre>
+  </div>
+</div>
+
+<div class="endpoint-card gc rounded-xl overflow-hidden">
+  <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-800/40" onclick="toggle('rev-delete')">
+    <div class="flex items-center gap-3"><span class="mD text-xs font-bold px-2.5 py-1 rounded-md">DELETE</span><code class="text-sm font-semibold text-slate-200">/api/v1/reviews/:id</code></div>
+    <div class="flex items-center gap-3"><span class="text-xs text-slate-400">Soft delete review</span><span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-950/70 text-amber-400 border border-amber-800/50">🔒 Protected</span></div>
+  </div>
+  <div id="rev-delete" class="ep space-y-3">
+    <input type="text" id="id-rev-delete" placeholder="Review UUID" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 rounded-lg px-3 py-2 font-mono focus:outline-none focus:border-emerald-500">
+    <button onclick="goId('/api/v1/reviews','id-rev-delete','DELETE','res-rev-delete')" class="bg-red-600 hover:bg-red-500 text-white text-xs font-medium px-4 py-2 rounded-lg">Send Request</button>
+    <pre id="res-rev-delete" class="text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800 min-h-10">// response here...</pre>
+  </div>
+</div>
+
+</div></main>
+
+<footer class="gc border-t border-slate-800/80 px-6 py-4 text-center text-xs text-slate-400">
+  Eco Loop REST API &bull; Express.js + TypeScript + Prisma + PostgreSQL
+</footer>
+<script>
+function toggle(id){
+  var el=document.getElementById(id);
+  el.style.display=el.style.display==='block'?'none':'block';
+}
+
+function filterEndpoints(){
+  var q=document.getElementById('search-input').value.toLowerCase();
+  document.querySelectorAll('.endpoint-card').forEach(function(c){
+    c.style.display=c.textContent.toLowerCase().includes(q)?'block':'none';
+  });
+}
+
+function getToken(){
+  return document.getElementById('global-token').value.trim();
+}
+
+async function go(url,method,outputId,bodyId,needsAuth){
+  var out=document.getElementById(outputId);
+  out.textContent='Executing...';
+  var headers={'Content-Type':'application/json'};
+  if(needsAuth){
+    var t=getToken();
+    if(!t){out.textContent='Error: No token set. Login first using POST /auth/login above.';return;}
+    headers['Authorization']='Bearer '+t;
+  }
+  var opts={method:method,headers:headers};
+  if(bodyId){
+    try{opts.body=JSON.stringify(JSON.parse(document.getElementById(bodyId).value));}
+    catch(e){out.textContent='Error: Invalid JSON in request body';return;}
+  }
+  try{
+    var r=await fetch(url,opts);
+    var d=await r.json();
+    out.textContent=JSON.stringify(d,null,2);
+  }catch(e){out.textContent='Request failed: '+e.message;}
+}
+
+async function goId(baseUrl,idInputId,method,outputId,bodyId){
+  var id=document.getElementById(idInputId).value.trim();
+  if(!id){document.getElementById(outputId).textContent='Error: Please enter an ID';return;}
+  await go(baseUrl+'/'+id,method,outputId,bodyId||null,true);
+}
+
+async function loginAndSetToken(){
+  var out=document.getElementById('res-auth-login');
+  out.textContent='Logging in...';
+  try{
+    var body=JSON.parse(document.getElementById('body-auth-login').value);
+    var r=await fetch('/api/v1/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    var d=await r.json();
+    out.textContent=JSON.stringify(d,null,2);
+    if(d.data&&d.data.token){
+      document.getElementById('global-token').value=d.data.token;
+      document.getElementById('token-status').textContent='Token set';
+      document.getElementById('token-status').className='text-xs text-emerald-400 font-semibold';
+    }else{
+      document.getElementById('token-status').textContent='Login failed — check credentials';
+      document.getElementById('token-status').className='text-xs text-red-400';
+    }
+  }catch(e){out.textContent='Request failed: '+e.message;}
+}
+</script>
 </body>
-
 </html>

@@ -1,18 +1,14 @@
 import { Request, Response, NextFunction } from "express";
-import { createRemoteJWKSet, jwtVerify } from "jose";
+import jwt from "jsonwebtoken";
 import { sendResponse } from "../lib/sendResponse";
 
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
-const JWKS_URL = `${FRONTEND_URL}/api/auth/jwks`;
-
-// Cache the JWKS so we don't fetch on every request
-const JWKS = createRemoteJWKSet(new URL(JWKS_URL));
+const JWT_SECRET = process.env.JWT_SECRET || "eco-loop-secret-key";
 
 export interface AuthRequest extends Request {
-    user?: { id: string; email: string; name?: string; [key: string]: unknown };
+    user?: { id: string; email: string; role?: string };
 }
 
-export async function authenticate(req: AuthRequest, res: Response, next: NextFunction) {
+export function authenticate(req: AuthRequest, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
 
     if (!authHeader?.startsWith("Bearer ")) {
@@ -22,12 +18,8 @@ export async function authenticate(req: AuthRequest, res: Response, next: NextFu
     const token = authHeader.split(" ")[1];
 
     try {
-        const { payload } = await jwtVerify(token, JWKS, {
-            issuer: FRONTEND_URL,
-            audience: FRONTEND_URL,
-        });
-
-        req.user = payload as { id: string; email: string; name?: string };
+        const decoded = jwt.verify(token, JWT_SECRET) as { id: string; email: string; role?: string };
+        req.user = decoded;
         next();
     } catch {
         return sendResponse({ res, status: 401, success: false, message: "Unauthorized: Invalid or expired token" });

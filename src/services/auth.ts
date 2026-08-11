@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import prisma from "../lib/prisma";
 import { sendResponse } from "../lib/sendResponse";
+import { authenticate, AuthRequest } from "../middleware/authenticate";
 
 const router = Router();
 
@@ -71,18 +72,10 @@ router.post("/login", async (req, res) => {
 });
 
 // GET ME (current user from token)
-router.get("/me", async (req, res) => {
+router.get("/me", authenticate, async (req: AuthRequest, res) => {
     try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader?.startsWith("Bearer ")) {
-            return sendResponse({ res, status: 401, success: false, message: "Unauthorized" });
-        }
-
-        const token = authHeader.split(" ")[1];
-        const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
-
         const user = await prisma.user.findFirst({
-            where: { id: decoded.id, isDeleted: false },
+            where: { id: req.user!.id, isDeleted: false },
             select: { id: true, email: true, name: true, role: true, createdAt: true, updatedAt: true },
         });
 
@@ -92,7 +85,7 @@ router.get("/me", async (req, res) => {
 
         sendResponse({ res, success: true, message: "User fetched successfully", data: user });
     } catch (error: any) {
-        sendResponse({ res, status: 401, success: false, message: "Invalid or expired token" });
+        sendResponse({ res, status: 500, success: false, message: error.message });
     }
 });
 
